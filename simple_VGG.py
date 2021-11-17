@@ -1,4 +1,7 @@
 #VGGNet for 128x128x3 images
+import torch
+import torch.nn as nn
+
 
 class VGG(nn.Module):
     def __init__(self):
