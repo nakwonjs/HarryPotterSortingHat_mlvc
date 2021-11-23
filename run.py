@@ -20,10 +20,11 @@ def main():
     epochs = 2
     learningRate = 1e-5
 
-    #TRAIN_DIR = '/content/drive/MyDrive/KK/TRAIN'
-    #TEST_DIR = '/content/drive/MyDrive/KK/TEST'
+    # TRAIN_DIR = '/content/drive/MyDrive/KK/TRAIN'
+    # TEST_DIR = '/content/drive/MyDrive/KK/TEST'
     TRAIN_DIR = "Data/TRAIN"
     TEST_DIR = "Data/TEST"
+    model_out_path = 'Result/'
 
     model = models.resnet50(pretrained=True)
     num_ftrs = model.fc.in_features
@@ -68,7 +69,6 @@ def main():
             loss.backward()
             optimizer.step()
 
-
         t_accs.append(train_accuracy / len(trainloader))
         t_loss.append(train_loss / len(trainloader))
 
@@ -94,10 +94,13 @@ def main():
         print("Train loss: {:.3f} | Train Accuracy: {:.3f} | valid Loss: {:.3f} | Valid Accuracy: {:.3f} | time: {:.3f}" \
               .format(t_loss[-1], t_accs[-1], v_loss[-1], v_accs[-1], elapsed_time))
 
-        model_out_path = '.model.pth'
-        torch.save(model.state_dict(), model_out_path)
+        if epoch+1 == epochs:
+            torch.save(model.state_dict(), model_out_path + "result_model.pth")
+        else:
+            torch.save(model.state_dict(), model_out_path + f"%03d_" % (epoch) + "model.pth")
 
     plotResultGraph(t_accs, v_accs, t_loss, v_loss)
+
 
 def plotResultGraph(t_accs, v_accs, t_loss, v_loss):
     plt.subplot(121)
@@ -118,6 +121,7 @@ def plotResultGraph(t_accs, v_accs, t_loss, v_loss):
     plt.legend(['Train', 'Validation'], loc='best')
     plt.grid()
     plt.show()
+
 
 if __name__ == '__main__':
     main()
