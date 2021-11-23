@@ -1,6 +1,6 @@
-import facealigner 
+import facealigner
 from imutils.face_utils import rect_to_bb
-import argparse 
+import argparse
 import imutils
 import dlib
 import cv2
@@ -12,7 +12,7 @@ from tkinter import filedialog
 from tkinter import *
 import cv2
 
-root=Tk()
+root = Tk()
 root.title("Harry Potter Sorting Hat Simulator")
 root.resizable(False, False)
 
@@ -25,6 +25,7 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
+
 def SortHat(img):
     trans_img = transform(img)
     ti = trans_img.unsqueeze(0)
@@ -33,33 +34,36 @@ def SortHat(img):
     pred = predicted[0]
 
     if 0 <= pred <= 11:
-        return 'Slytherin!'
+        #return 'Slytherin!'
+        return pred
     elif 12 <= pred <= 18:
         return 'Ravenclaw!'
     elif 19 <= pred <= 26:
         return 'Gryffindor!'
     elif 27 <= pred <= 31:
         return 'Hufflepuff!'
-    
+
+
 model = torch.load('mymodel.h5', map_location=torch.device('cpu'))
+print("hi")
 
 def clickButton():
     file = filedialog.askopenfile(initialdir='path', title='Choose a file',
                                   filetypes=(('jpg files', '*.jpg'), ('all files', '*.*')))
 
     lbl.configure(text='Your Dormitory Is... ')
-    
+
     if file != None:
         data = file.name
         image = cv2.imread(data)
         image = imutils.resize(image, width=800)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         rects = detector(gray, 2)
-        
+
         for rect in rects:
             try:
                 (x, y, w, h) = rect_to_bb(rect)
-                faceOrig = imutils.resize(image[y:y+h, x:x+w], width=128)
+                faceOrig = imutils.resize(image[y:y + h, x:x + w], width=128)
                 faceAligned = fa.align(image, gray, rect)
                 dormitory = SortHat(faceAligned)
                 txt.configure(text=dormitory)
@@ -72,7 +76,7 @@ def clickButton():
         file.close()
 
 
-btn=Button(None,text="UPLOAD YOUR PIC!",command=clickButton)
+btn = Button(None, text="UPLOAD YOUR PIC!", command=clickButton)
 btn.pack()
 
 lbl = Label(root, text=' ')
