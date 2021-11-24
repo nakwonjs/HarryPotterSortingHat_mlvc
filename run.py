@@ -12,13 +12,18 @@ from transformers import AdamW
 import matplotlib.pyplot as plt
 
 import time
-from util import *
+import argparse
 
+from util import *
+from models import aaa
+from models import Densenet
 
 def main():
     device = check_device()
-    epochs = 2
+    BATCH_SIZE = 2
+    epochs = 25
     learningRate = 1e-5
+
 
     # TRAIN_DIR = '/content/drive/MyDrive/KK/TRAIN'
     # TEST_DIR = '/content/drive/MyDrive/KK/TEST'
@@ -26,12 +31,13 @@ def main():
     TEST_DIR = "Data/TEST"
     model_out_path = 'Result/'
 
-    model = models.resnet50(pretrained=True)
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 32)
+    # model = models.resnet50(pretrained=True)
+    # num_ftrs = model.fc.in_features
+    # model.fc = nn.Linear(num_ftrs, 32)
 
+    model = Densenet.densenet_cifar()
     model = model.to(device)
-    BATCH_SIZE = 16
+
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -41,12 +47,13 @@ def main():
     test_data = dsets.ImageFolder(TEST_DIR, transform=transform)
 
     trainloader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
-    testloader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=True)
+    testloader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False)
 
     criterion = nn.CrossEntropyLoss().to(device)
     optimizer = AdamW(model.parameters(), lr=learningRate)
 
     t_accs, v_accs, t_loss, v_loss = [], [], [], []
+    print("Train Start")
     for epoch in range(epochs):
         start_time = time.time()
         train_loss = 0
