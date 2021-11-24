@@ -10,6 +10,7 @@ class VGG(nn.Module):
             # 3 x 128 x 128
             nn.Conv2d(3, 64, kernel_size=3, padding=1),
             nn.ReLU(),
+            #  64 * 128 * 128
             nn.Conv2d(64, 64, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
