@@ -15,6 +15,11 @@ from tkinter import *
 import cv2
 from PIL import Image
 from dpn import *
+import random
+
+seed = 2021
+torch.manual_seed(seed)
+random.seed(seed)
 
 root=Tk()
 root.title("Harry Potter Sorting Hat Simulator")
@@ -33,12 +38,11 @@ transform = transforms.Compose([
 
 def SortHat(img):
     trans_img = transform(img)
-    #trans_img = Variable(trans_img)
     ti = trans_img.unsqueeze(0)
     output = model(ti)
     _, predicted = torch.max(output.data, 1)
     pred = predicted[0]
-
+    print(pred)
     if 0 <= pred <= 11:
         return 'Slytherin!'
     elif 12 <= pred <= 18:
@@ -48,8 +52,10 @@ def SortHat(img):
     elif 27 <= pred <= 31:
         return 'Hufflepuff!'
     
-model = dpn131()
-model.load_state_dict(torch.load('hrpt_DPN_Epoch25_transform_state.pth', map_location=torch.device('cpu')))
+model = torch.load('hrpt_DPN_Epoch25_transform_model.pth', map_location=torch.device('cpu'))
+ckpt = torch.load('hrpt_DPN_Epoch25_transform_state.pth', map_location=torch.device('cpu'))
+model.load_state_dict(ckpt)
+path = 'C:\\Users\\siryu\\2.jpg'
 
 def clickButton():
     file = filedialog.askopenfile(initialdir='path', title='Choose a file',
