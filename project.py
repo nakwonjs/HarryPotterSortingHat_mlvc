@@ -15,8 +15,8 @@ from transformers import AdamW
 import matplotlib.pyplot as plt
 
 #Define dataset directory
-TRAIN_DIR = #TRAIN_DIR
-TEST_DIR = #TEST_DIR
+TRAIN_DIR = "Data/TRAIN"
+TEST_DIR = "Data/TEST"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 #Transfer learning section
@@ -131,7 +131,7 @@ def SortHat(img):
     print('Griffyndor!')
 
 #Prediction section
-REAL_IMG = #Input image directory
+REAL_IMG = "Data/TRAIN"
 import cv2
 
 img = cv2.imread(REAL_IMG)

@@ -15,32 +15,58 @@ import time
 import argparse
 
 from util import *
-from models import aaa
+from models import se_renet
+from models import dpns
 from models import Densenet
+from models import inceptionv4
+
 
 def main():
     device = check_device()
-    BATCH_SIZE = 2
+    BATCH_SIZE = 32
     epochs = 25
-    learningRate = 1e-5
-
+    learningRate = 3e-4
+    modelIdx = 4
+    optimIdx = 0
+    weight_decay = 1e-06
 
     # TRAIN_DIR = '/content/drive/MyDrive/KK/TRAIN'
     # TEST_DIR = '/content/drive/MyDrive/KK/TEST'
+    #TRAIN_DIR = "Data/data2/TRAIN"
+    #TEST_DIR = "Data/data2/TEST"
     TRAIN_DIR = "Data/TRAIN"
     TEST_DIR = "Data/TEST"
     model_out_path = 'Result/'
 
-    # model = models.resnet50(pretrained=True)
-    # num_ftrs = model.fc.in_features
-    # model.fc = nn.Linear(num_ftrs, 32)
+    if modelIdx == 0:
+        model = models.resnet50(pretrained=True)
+        model_out_path += "resnet50/resnet50"
+    elif modelIdx == 1:
+        model_out_path += "densenet121/densenet121"
+        model = models.densenet121(pretrained=True)
+    elif modelIdx == 2:
+        model_out_path += "dpn92/dpn92"
+        model = dpns.dpn92(pretrained=True)
+    elif modelIdx == 3:
+        model_out_path += "resnet152/resnet152"
+        model = models.resnet152(pretrained=True)
+    elif modelIdx == 4:
+        model_out_path += "dpn131/dpn131"
+        model = dpns.dpn131(pretrained=True,num_classes = 32)
+    elif modelIdx == 5:
+        model_out_path += "senet101/senet101"
+        model = se_renet.se_resnext101()
+    elif modelIdx == 6:
+        model_out_path += "inceptionv4/inceptionv4"
+        model = inceptionv4.inceptionv4()
 
-    model = Densenet.densenet_cifar()
     model = model.to(device)
 
     transform = transforms.Compose([
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
+        transforms.RandomHorizontalFlip(p=1),
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     train_data = dsets.ImageFolder(TRAIN_DIR, transform=transform)
@@ -50,8 +76,17 @@ def main():
     testloader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False)
 
     criterion = nn.CrossEntropyLoss().to(device)
-    optimizer = AdamW(model.parameters(), lr=learningRate)
 
+    optimstr = ''
+    if optimIdx == 0:
+        optimizer = AdamW(model.parameters(), lr=learningRate, weight_decay=weight_decay)
+        optimstr = '_AdamW'
+    elif optimIdx == 1:
+        momentum = 0.7
+        optimizer = optim.SGD(model.parameters(), lr=learningRate, momentum=momentum, weight_decay=weight_decay)
+        optimstr = '_SGD' + '_momentum_' + str(momentum)
+
+    title = model_out_path + optimstr + '_lr_' + str(learningRate) + '_l2_' + str(weight_decay)
     t_accs, v_accs, t_loss, v_loss = [], [], [], []
     print("Train Start")
     for epoch in range(epochs):
@@ -101,15 +136,20 @@ def main():
         print("Train loss: {:.3f} | Train Accuracy: {:.3f} | valid Loss: {:.3f} | Valid Accuracy: {:.3f} | time: {:.3f}" \
               .format(t_loss[-1], t_accs[-1], v_loss[-1], v_accs[-1], elapsed_time))
 
-        if epoch+1 == epochs:
-            torch.save(model.state_dict(), model_out_path + "result_model.pth")
-        else:
-            torch.save(model.state_dict(), model_out_path + f"%03d_" % (epoch) + "model.pth")
+        if epoch + 1 == epochs:
+            torch.save(model.state_dict(), title + "_state_result.pth")
+            torch.save(model, title + "_model_result.pth")
+        elif (epoch + 1) // 5 == 0:
+            torch.save(model.state_dict(), title + f"_%03d_" % (epoch) + "epoch_state.pth")
+            torch.save(model, title + f"_%03d_" % (epoch) + "epoch_model.pth")
 
-    plotResultGraph(t_accs, v_accs, t_loss, v_loss)
+    plotResultGraph(t_accs, v_accs, t_loss, v_loss, model_out_path, title)
 
 
-def plotResultGraph(t_accs, v_accs, t_loss, v_loss):
+def plotResultGraph(t_accs, v_accs, t_loss, v_loss, out_path, title):
+
+    plt.figure(figsize=(15,8))
+    plt.suptitle(title)
     plt.subplot(121)
     plt.title('Model Accuracy')
     plt.plot(t_accs, label="Training Accuracy")
@@ -127,6 +167,7 @@ def plotResultGraph(t_accs, v_accs, t_loss, v_loss):
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Validation'], loc='best')
     plt.grid()
+    plt.savefig(title + '_result.png')
     plt.show()
 
 

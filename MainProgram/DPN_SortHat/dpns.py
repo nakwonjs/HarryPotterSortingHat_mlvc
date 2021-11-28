@@ -1,3 +1,13 @@
+""" PyTorch implementation of DualPathNetworks
+Based on original MXNet implementation https://github.com/cypw/DPNs with
+many ideas from another PyTorch implementation https://github.com/oyam/pytorch-DPNs.
+This implementation is compatible with the pretrained weights
+from cypw's MXNet implementation.
+"""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,9 +18,74 @@ except ImportError:
 
 from collections import OrderedDict
 
-from adaptive_avgmax_pool import adaptive_avgmax_pool2d
 
-__all__ = ['DPN', 'dpn131']
+def pooling_factor(pool_type='avg'):
+    return 2 if pool_type == 'avgmaxc' else 1
+
+
+def adaptive_avgmax_pool2d(x, pool_type='avg', padding=0, count_include_pad=False):
+    """Selectable global pooling function with dynamic input kernel size
+    """
+    if pool_type == 'avgmaxc':
+        x = torch.cat([
+            F.avg_pool2d(
+                x, kernel_size=(x.size(2), x.size(3)), padding=padding, count_include_pad=count_include_pad),
+            F.max_pool2d(x, kernel_size=(x.size(2), x.size(3)), padding=padding)
+        ], dim=1)
+    elif pool_type == 'avgmax':
+        x_avg = F.avg_pool2d(
+                x, kernel_size=(x.size(2), x.size(3)), padding=padding, count_include_pad=count_include_pad)
+        x_max = F.max_pool2d(x, kernel_size=(x.size(2), x.size(3)), padding=padding)
+        x = 0.5 * (x_avg + x_max)
+    elif pool_type == 'max':
+        x = F.max_pool2d(x, kernel_size=(x.size(2), x.size(3)), padding=padding)
+    else:
+        if pool_type != 'avg':
+            print('Invalid pool type %s specified. Defaulting to average pooling.' % pool_type)
+        x = F.avg_pool2d(
+            x, kernel_size=(x.size(2), x.size(3)), padding=padding, count_include_pad=count_include_pad)
+    return x
+
+
+class AdaptiveAvgMaxPool2d(torch.nn.Module):
+    """Selectable global pooling layer with dynamic input kernel size
+    """
+    def __init__(self, output_size=1, pool_type='avg'):
+        super(AdaptiveAvgMaxPool2d, self).__init__()
+        self.output_size = output_size
+        self.pool_type = pool_type
+        if pool_type == 'avgmaxc' or pool_type == 'avgmax':
+            self.pool = nn.ModuleList([nn.AdaptiveAvgPool2d(output_size), nn.AdaptiveMaxPool2d(output_size)])
+        elif pool_type == 'max':
+            self.pool = nn.AdaptiveMaxPool2d(output_size)
+        else:
+            if pool_type != 'avg':
+                print('Invalid pool type %s specified. Defaulting to average pooling.' % pool_type)
+            self.pool = nn.AdaptiveAvgPool2d(output_size)
+
+    def forward(self, x):
+        if self.pool_type == 'avgmaxc':
+            x = torch.cat([p(x) for p in self.pool], dim=1)
+        elif self.pool_type == 'avgmax':
+            x = 0.5 * torch.sum(torch.stack([p(x) for p in self.pool]), 0).squeeze(dim=0)
+        else:
+            x = self.pool(x)
+        return x
+
+    def factor(self):
+        return pooling_factor(self.pool_type)
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' \
+               + 'output_size=' + str(self.output_size) \
+               + ', pool_type=' + self.pool_type + ')'
+
+
+
+
+
+
+__all__ = ['DPN', 'dpn68', 'dpn68b', 'dpn92', 'dpn98', 'dpn131', 'dpn107']
 
 
 model_urls = {
@@ -27,6 +102,115 @@ model_urls = {
     'dpn107-extra':
         'https://github.com/rwightman/pytorch-dpn-pretrained/releases/download/v0.1/dpn107_extra-1ac7121e2.pth'
 }
+
+
+def dpn68(pretrained=False, test_time_pool=False, **kwargs):
+    """Constructs a DPN-68 model.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet-1K
+        test_time_pool (bool): If True, pools features for input resolution beyond
+            standard 224x224 input with avg+max at inference/validation time
+        **kwargs : Keyword args passed to model __init__
+            num_classes (int): Number of classes for classifier linear layer, default=1000
+    """
+    model = DPN(
+        small=True, num_init_features=10, k_r=128, groups=32,
+        k_sec=(3, 4, 12, 3), inc_sec=(16, 32, 32, 64),
+        test_time_pool=test_time_pool, **kwargs)
+    if pretrained:
+        model.load_state_dict(load_state_dict_from_url(model_urls['dpn68']))
+    return model
+
+
+def dpn68b(pretrained=False, test_time_pool=False, **kwargs):
+    """Constructs a DPN-68b model.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet-1K
+        test_time_pool (bool): If True, pools features for input resolution beyond
+            standard 224x224 input with avg+max at inference/validation time
+        **kwargs : Keyword args passed to model __init__
+            num_classes (int): Number of classes for classifier linear layer, default=1000
+    """
+    model = DPN(
+        small=True, num_init_features=10, k_r=128, groups=32,
+        b=True, k_sec=(3, 4, 12, 3), inc_sec=(16, 32, 32, 64),
+        test_time_pool=test_time_pool, **kwargs)
+    if pretrained:
+        model.load_state_dict(load_state_dict_from_url(model_urls['dpn68b-extra']))
+    return model
+
+
+def dpn92(pretrained=False, test_time_pool=False, **kwargs):
+    """Constructs a DPN-92 model.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet-1K
+        test_time_pool (bool): If True, pools features for input resolution beyond
+            standard 224x224 input with avg+max at inference/validation time
+        **kwargs : Keyword args passed to model __init__
+            num_classes (int): Number of classes for classifier linear layer, default=1000
+    """
+    model = DPN(
+        num_init_features=64, k_r=96, groups=32,
+        k_sec=(3, 4, 20, 3), inc_sec=(16, 32, 24, 128),
+        test_time_pool=test_time_pool, **kwargs)
+    if pretrained:
+        model.load_state_dict(load_state_dict_from_url(model_urls['dpn92-extra']))
+    return model
+
+
+def dpn98(pretrained=False, test_time_pool=False, **kwargs):
+    """Constructs a DPN-98 model.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet-1K
+        test_time_pool (bool): If True, pools features for input resolution beyond
+            standard 224x224 input with avg+max at inference/validation time
+        **kwargs : Keyword args passed to model __init__
+            num_classes (int): Number of classes for classifier linear layer, default=1000
+    """
+    model = DPN(
+        num_init_features=96, k_r=160, groups=40,
+        k_sec=(3, 6, 20, 3), inc_sec=(16, 32, 32, 128),
+        test_time_pool=test_time_pool, **kwargs)
+    if pretrained:
+        model.load_state_dict(load_state_dict_from_url(model_urls['dpn98']))
+    return model
+
+
+def dpn131(pretrained=False, test_time_pool=False, **kwargs):
+    """Constructs a DPN-131 model.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet-1K
+        test_time_pool (bool): If True, pools features for input resolution beyond
+            standard 224x224 input with avg+max at inference/validation time
+        **kwargs : Keyword args passed to model __init__
+            num_classes (int): Number of classes for classifier linear layer, default=1000
+    """
+    model = DPN(
+        num_init_features=128, k_r=160, groups=40,
+        k_sec=(4, 8, 28, 3), inc_sec=(16, 32, 32, 128),
+        test_time_pool=test_time_pool, **kwargs)
+    if pretrained:
+        model.load_state_dict(load_state_dict_from_url(model_urls['dpn131']))
+    return model
+
+
+def dpn107(pretrained=False, test_time_pool=False, **kwargs):
+    """Constructs a DPN-107 model.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet-1K
+        test_time_pool (bool): If True, pools features for input resolution beyond
+            standard 224x224 input with avg+max at inference/validation time
+        **kwargs : Keyword args passed to model __init__
+            num_classes (int): Number of classes for classifier linear layer, default=1000
+    """
+    model = DPN(
+        num_init_features=128, k_r=200, groups=50,
+        k_sec=(4, 8, 20, 3), inc_sec=(20, 64, 64, 128),
+        test_time_pool=test_time_pool, **kwargs)
+    if pretrained:
+        model.load_state_dict(load_state_dict_from_url(model_urls['dpn107-extra']))
+    return model
+
 
 class CatBnAct(nn.Module):
     def __init__(self, in_chs, activation_fn=nn.ReLU(inplace=True)):
@@ -131,7 +315,8 @@ class DualPathBlock(nn.Module):
         resid = x_s1 + out1
         dense = torch.cat([x_s2, out2], dim=1)
         return resid, dense
-    
+
+
 class DPN(nn.Module):
     def __init__(self, small=False, num_init_features=64, k_r=96, groups=32,
                  b=False, k_sec=(3, 4, 20, 3), inc_sec=(16, 32, 24, 128),
@@ -206,20 +391,3 @@ class DPN(nn.Module):
             x = adaptive_avgmax_pool2d(x, pool_type='avg')
             out = self.classifier(x)
         return out.view(out.size(0), -1)
-    
-def dpn131(pretrained=False, test_time_pool=False, **kwargs):
-    """Constructs a DPN-131 model.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet-1K
-        test_time_pool (bool): If True, pools features for input resolution beyond
-            standard 224x224 input with avg+max at inference/validation time
-        **kwargs : Keyword args passed to model __init__
-            num_classes (int): Number of classes for classifier linear layer, default=1000
-    """
-    model = DPN(
-        num_init_features=128, k_r=160, groups=40,
-        k_sec=(4, 8, 28, 3), inc_sec=(16, 32, 32, 128),
-        test_time_pool=test_time_pool, **kwargs)
-    if pretrained:
-        model.load_state_dict(load_state_dict_from_url(model_urls['dpn131']))
-    return model

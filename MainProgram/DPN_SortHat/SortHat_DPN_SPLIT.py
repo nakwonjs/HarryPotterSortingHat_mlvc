@@ -14,7 +14,7 @@ from tkinter import filedialog
 from tkinter import *
 import cv2
 from PIL import Image
-from dpn import *
+from dpns import *
 import random
 
 seed = 2021
@@ -51,10 +51,11 @@ def SortHat(img):
         return 'Gryffindor!'
     elif 27 <= pred <= 31:
         return 'Hufflepuff!'
-    
-model = torch.load('hrpt_DPN_Epoch25_transform_model.pth', map_location=torch.device('cpu'))
-ckpt = torch.load('hrpt_DPN_Epoch25_transform_state.pth', map_location=torch.device('cpu'))
+
+model = torch.load('dpn131_SGD_momentum_0.7_lr_0.001_l2_1e-06_model_result.pth', map_location=torch.device('cpu'))
+ckpt = torch.load('dpn131_SGD_momentum_0.7_lr_0.001_l2_1e-06_state_result.pth', map_location=torch.device('cpu'))
 model.load_state_dict(ckpt)
+
 path = 'C:\\Users\\siryu\\2.jpg'
 
 def clickButton():
@@ -71,19 +72,19 @@ def clickButton():
         rects = detector(gray, 2)
         
         for rect in rects:
-            try:
-                (x, y, w, h) = rect_to_bb(rect)
-                faceOrig = imutils.resize(image[y:y+h, x:x+w], width=128)
-                faceAligned = fa.align(image, gray, rect)
-                cv2.imshow('img', faceAligned)
-                cv2.waitKey(0)
-                faceAligned = Image.fromarray(faceAligned)
-                dormitory = SortHat(faceAligned)
-                txt.configure(text=dormitory)
+
+            (x, y, w, h) = rect_to_bb(rect)
+            faceOrig = imutils.resize(image[y:y+h, x:x+w], width=128)
+            faceAligned = fa.align(image, gray, rect)
+            cv2.imshow('img', faceAligned)
+            cv2.waitKey(0)
+            faceAligned = Image.fromarray(faceAligned)
+            dormitory = SortHat(faceAligned)
+            txt.configure(text=dormitory)
                 
-            except:
-                txt.configure(text='UNVALID PICTURE. CHOOSE ANOTHER PICTURE')
-                continue
+            # except:
+            #     txt.configure(text='UNVALID PICTURE. CHOOSE ANOTHER PICTURE')
+            #     continue
 
         file.close()
 
