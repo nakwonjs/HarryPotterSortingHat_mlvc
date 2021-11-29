@@ -18,6 +18,7 @@ except ImportError:
 
 from collections import OrderedDict
 
+
 def pooling_factor(pool_type='avg'):
     return 2 if pool_type == 'avgmaxc' else 1
 
@@ -78,6 +79,10 @@ class AdaptiveAvgMaxPool2d(torch.nn.Module):
         return self.__class__.__name__ + ' (' \
                + 'output_size=' + str(self.output_size) \
                + ', pool_type=' + self.pool_type + ')'
+
+
+
+
 
 
 __all__ = ['DPN', 'dpn68', 'dpn68b', 'dpn92', 'dpn98', 'dpn131', 'dpn107']
@@ -315,7 +320,7 @@ class DualPathBlock(nn.Module):
 class DPN(nn.Module):
     def __init__(self, small=False, num_init_features=64, k_r=96, groups=32,
                  b=False, k_sec=(3, 4, 20, 3), inc_sec=(16, 32, 24, 128),
-                 num_classes=32, test_time_pool=False):
+                 num_classes=1000, test_time_pool=False):
         super(DPN, self).__init__()
         self.test_time_pool = test_time_pool
         self.b = b
