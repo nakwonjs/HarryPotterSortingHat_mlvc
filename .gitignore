@@ -198,3 +198,6 @@ h5_files/harrypotter_DPN131_Epoch50.h5
 h5_files/harrypotter_FACE_Epoch100.h5
 h5_files/harrypotter_FACE_Epoch25.h5
 h5_files/harrypotter_Res50_Epoch25.h5
+MainProgram/Hogwart.jpg
+MainProgram/hrpt_DPN_Epoch25_transform_model.pth
+MainProgram/hrpt_DPN_Epoch25_transform_state.pth
