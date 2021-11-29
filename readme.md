@@ -42,7 +42,8 @@ HarryPotterSortingHat_mlvc
 │   ├── helpers.py
 │   ├── shape_predictor_68_face_landmakrs.dat.bz2
 │   └── shape_predictor_68_face_landmarks.dat
-├── train.py
+├── .gitignore
 ├── readme.md
-└── .gitignore
+├── train.py
+└── util.py
 ```    
