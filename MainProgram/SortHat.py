@@ -15,7 +15,7 @@ import tkinter as tk
 import cv2
 from PIL import Image
 from PIL import ImageTk
-from dpns import *
+from dpn import *
 import random
 
 seed = 2021
