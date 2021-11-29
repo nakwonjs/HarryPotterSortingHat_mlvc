@@ -14,6 +14,7 @@ from tkinter import filedialog
 import tkinter as tk
 import cv2
 from PIL import Image
+from PIL import ImageTk
 from dpns import *
 import random
 
@@ -65,12 +66,20 @@ def App():
             rects = detector(gray, 2)
 
             for rect in rects:
-                try:
+                # try:
                     (x, y, w, h) = rect_to_bb(rect)
                     faceOrig = imutils.resize(image[y:y + h, x:x + w], width=128)
                     faceAligned = fa.align(image, gray, rect)
-                    cv2.imshow('img', faceAligned)
-                    cv2.imwrite('Hogwart.jpg', faceAligned)
+
+                    userImg = faceAligned
+                    userImg = cv2.cvtColor(userImg, cv2.COLOR_BGR2RGB)
+                    userImg = Image.fromarray(userImg)
+
+                    userphoto = ImageTk.PhotoImage(image=userImg)
+                    userphoto = userphoto._PhotoImage__photo.zoom(2)
+                    lbl2.configure(image = userphoto)
+                    lbl2.image = userphoto
+
                     faceAligned = Image.fromarray(faceAligned)
                     dormitory = SortHat(faceAligned)
                     if dormitory == 'Slytherin!':
@@ -84,9 +93,9 @@ def App():
 
                     txt.configure(text=dormitory)
 
-                except:
-                     txt.configure(text='UNVALID PICTURE. CHOOSE ANOTHER PICTURE')
-                     continue
+                # except:
+                #      txt.configure(text='UNVALID PICTURE. CHOOSE ANOTHER PICTURE')
+                #      continue
 
             file.close()
 
@@ -94,12 +103,14 @@ def App():
     btn = tk.Button(None, text="UPLOAD YOUR PIC!", command=clickButton)
     btn.pack()
 
-    imgFrame = tk.Frame(master=root,
-                         width=500,
+    pFrame = tk. Frame(master=root,
+                         width=800,
                          height=500,)
+    imgFrame = tk.Frame(master=pFrame)
 
+    pFrame.pack()
     imgFrame.pack()
-    imgFrame.pack_propagate(0)
+    pFrame.pack_propagate(0)
 
     baseImg = 'img/base.png'
     gryImg = 'img/gryffindor.png'
@@ -114,10 +125,13 @@ def App():
     slyphoto= tk.PhotoImage(file = slyImg).subsample(2,2)
 
     lbl = tk.Label(master=imgFrame, image = basephoto)
-    lbl.pack()
+    lbl2 = tk.Label(master=imgFrame, image = basephoto)
+
+    lbl.pack(side = "left")
+    lbl2.pack(side = "left")
 
     txtFrame = tk.Frame(master=root,
-                         width=400,
+                         width=800,
                          height=50,)
     txtFrame.pack()
     txtFrame.pack_propagate(0)
