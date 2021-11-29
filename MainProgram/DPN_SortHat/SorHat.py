@@ -21,10 +21,6 @@ seed = 2021
 torch.manual_seed(seed)
 random.seed(seed)
 
-
-
-
-
 transform = transforms.Compose([
     transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
     transforms.RandomHorizontalFlip(p=1),
@@ -74,6 +70,7 @@ def App():
                     faceOrig = imutils.resize(image[y:y + h, x:x + w], width=128)
                     faceAligned = fa.align(image, gray, rect)
                     cv2.imshow('img', faceAligned)
+                    cv2.imwrite('Hogwart.jpg', faceAligned)
                     faceAligned = Image.fromarray(faceAligned)
                     dormitory = SortHat(faceAligned)
                     if dormitory == 'Slytherin!':
