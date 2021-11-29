@@ -112,12 +112,16 @@ def App():
     imgFrame.pack()
     pFrame.pack_propagate(0)
 
+    hatImg = 'img/sorthat.jpg'
     baseImg = 'img/base.png'
     gryImg = 'img/gryffindor.png'
     huffImg = 'img/hufflepuff.png'
     ravImg = 'img/ravenclaw.png'
     slyImg = 'img/slytherin.png'
 
+    im = Image.open(hatImg)
+    hatphoto = ImageTk.PhotoImage(im)
+    hatphoto = hatphoto._PhotoImage__photo.subsample(2)
     basephoto = tk.PhotoImage(file = baseImg).subsample(2,2)
     gryphoto= tk.PhotoImage(file = gryImg).subsample(2,2)
     huffphoto = tk.PhotoImage(file = huffImg).subsample(2,2)
@@ -125,7 +129,8 @@ def App():
     slyphoto= tk.PhotoImage(file = slyImg).subsample(2,2)
 
     lbl = tk.Label(master=imgFrame, image = basephoto)
-    lbl2 = tk.Label(master=imgFrame, image = basephoto)
+    lbl2 = tk.Label(master=imgFrame, image = hatphoto)
+    lbl2.image = hatphoto
 
     lbl.pack(side = "left")
     lbl2.pack(side = "left")
