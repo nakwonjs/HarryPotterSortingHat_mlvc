@@ -23,7 +23,7 @@ from models import inceptionv4
 
 def main():
     device = check_device()
-    BATCH_SIZE = 16
+    BATCH_SIZE = 32
     epochs = 30
     learningRate = 3e-4
     modelIdx = 4
@@ -133,10 +133,10 @@ def main():
         print("Train loss: {:.3f} | Train Accuracy: {:.3f} | valid Loss: {:.3f} | Valid Accuracy: {:.3f} | time: {:.3f}" \
               .format(t_loss[-1], t_accs[-1], v_loss[-1], v_accs[-1], elapsed_time))
 
-        if epoch + 1 == epochs:
+        if (epoch + 1) == epochs:
             torch.save(model.state_dict(), title + "_state_result.pth")
             torch.save(model, title + "_model_result.pth")
-        elif (epoch + 1) // 5 == 0:
+        else :
             torch.save(model.state_dict(), title + f"_%03d_" % (epoch) + "epoch_state.pth")
             torch.save(model, title + f"_%03d_" % (epoch) + "epoch_model.pth")
 
