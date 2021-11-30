@@ -19,6 +19,7 @@
 Enter your image, and get assigned the Hogwarts residence that best suits you!
 
 ## Usage
+You have to download flies at this link(https://github.com/Wawtuh/HarryPotterSortingHat_mlvc/edit/master/readme.md) and place them at 'Main' folder  
 Run SortHat.py in Main folder
 > python SortHat.py
 
