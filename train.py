@@ -30,10 +30,6 @@ def main():
     optimIdx = 0
     weight_decay = 1e-4
 
-    # TRAIN_DIR = '/content/drive/MyDrive/KK/TRAIN'
-    # TEST_DIR = '/content/drive/MyDrive/KK/TEST'
-    #TRAIN_DIR = "Data/data2/TRAIN"
-    #TEST_DIR = "Data/data2/TEST"
     TRAIN_DIR = "Data/TRAIN"
     TEST_DIR = "Data/TEST"
     model_out_path = 'Result/'
