@@ -24,7 +24,7 @@ from models import inceptionv4
 def main():
     device = check_device()
     BATCH_SIZE = 32
-    epochs = 30
+    epochs = 1
     learningRate = 3e-4
     modelIdx = 4
     optimIdx = 0
@@ -36,25 +36,25 @@ def main():
     #TEST_DIR = "Data/data2/TEST"
     TRAIN_DIR = "Data/TRAIN"
     TEST_DIR = "Data/TEST"
-    model_out_path = 'Result/'
+    model_out_path = ''
 
     if modelIdx == 0:
         model = models.resnet50(pretrained=True)
-        model_out_path += "resnet50/resnet50"
+        model_out_path += "resnet50"
     elif modelIdx == 1:
-        model_out_path += "densenet121/densenet121"
+        model_out_path += "densenet121"
         model = models.densenet121(pretrained=True)
     elif modelIdx == 2:
-        model_out_path += "dpn92/dpn92"
+        model_out_path += "dpn92"
         model = dpns.dpn92(pretrained=True)
     elif modelIdx == 3:
-        model_out_path += "resnet152/resnet152"
+        model_out_path += "resnet152"
         model = models.resnet152(pretrained=True)
     elif modelIdx == 4:
-        model_out_path += "dpn131/dpn131"
+        model_out_path += "dpn131"
         model = dpns.dpn131(pretrained=True)
     elif modelIdx == 5:
-        model_out_path += "inceptionv4/inceptionv4"
+        model_out_path += "inceptionv4"
         model = inceptionv4.inceptionv4()
 
     model = model.to(device)
@@ -134,11 +134,11 @@ def main():
               .format(t_loss[-1], t_accs[-1], v_loss[-1], v_accs[-1], elapsed_time))
 
         if (epoch + 1) == epochs:
-            torch.save(model.state_dict(), title + "_state_result.pth")
-            torch.save(model, title + "_model_result.pth")
+            torch.save(model.state_dict(), model_out_path + "state_result.pth")
+            torch.save(model, model_out_path + "model_result.pth")
         else :
-            torch.save(model.state_dict(), title + f"_%03d_" % (epoch) + "epoch_state.pth")
-            torch.save(model, title + f"_%03d_" % (epoch) + "epoch_model.pth")
+            torch.save(model.state_dict(),model_out_path + f"%03d_" % (epoch) + "epoch_state.pth")
+            torch.save(model, model_out_path + f"%03d_" % (epoch) + "epoch_model.pth")
 
     plotResultGraph(t_accs, v_accs, t_loss, v_loss, model_out_path, title)
 
