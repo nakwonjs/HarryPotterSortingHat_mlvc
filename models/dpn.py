@@ -385,4 +385,4 @@ class DPN(nn.Module):
         else:
             x = adaptive_avgmax_pool2d(x, pool_type='avg')
             out = self.classifier(x)
-        return out.view(out.size(0), -1)
+        return out.view(out.size(0), -1) 

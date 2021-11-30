@@ -50,15 +50,15 @@ class VGG(nn.Module):
             nn.Linear(512 * 4 * 4, 4096),
             nn.ReLU(),
             nn.Dropout(0.5),
-            
+
             nn.Linear(4096, 2048),
             nn.ReLU(),
             nn.Dropout(0.5),
-            
+
             nn.Linear(2048, 20)
         )
     def forward(self, x):
         output = self.cnn(x)
         output = output.view(output.size(0), -1)
         output = self.fc(output)
-        return output
+        return output 
