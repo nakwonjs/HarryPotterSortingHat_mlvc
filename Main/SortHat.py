@@ -148,8 +148,8 @@ def App():
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 fa = facealigner.FaceAligner(predictor, desiredFaceWidth=128)
-model = torch.load('dpn131_SGD_momentum_0.7_lr_0.001_l2_1e-06_model_result.pth', map_location=torch.device('cpu'))
-ckpt = torch.load('dpn131_SGD_momentum_0.7_lr_0.001_l2_1e-06_state_result.pth', map_location=torch.device('cpu'))
+model = torch.load('dpn131_AdamW_lr_0.0003_l2_0.0001_model_result.pth', map_location=torch.device('cpu'))
+ckpt = torch.load('dpn131_AdamW_lr_0.0003_l2_0.0001_state_result.pth', map_location=torch.device('cpu'))
 App()
 
 
