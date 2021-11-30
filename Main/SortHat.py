@@ -51,6 +51,7 @@ def App():
     root = tk.Tk()
     root.title("Harry Potter Sorting Hat Simulator")
     root.resizable(False, False)
+
     def clickButton():
 
         file = filedialog.askopenfile(initialdir='path', title='Choose a file',
@@ -148,8 +149,9 @@ def App():
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 fa = facealigner.FaceAligner(predictor, desiredFaceWidth=128)
-model = torch.load('dpn131_AdamW_lr_0.0003_l2_0.0001_model_result.pth', map_location=torch.device('cpu'))
-ckpt = torch.load('dpn131_AdamW_lr_0.0003_l2_0.0001_state_result.pth', map_location=torch.device('cpu'))
+
+
+model = torch.load('dpn131_AdamW_lr_0.0003_l2_0.0001_model.pth', map_location=torch.device('cpu'))
+ckpt = torch.load('dpn131_AdamW_lr_0.0003_l2_0.0001_state.pth', map_location=torch.device('cpu'))
+
 App()
-
-
