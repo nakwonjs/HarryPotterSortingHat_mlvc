@@ -23,12 +23,12 @@ from models import inceptionv4
 
 def main():
     device = check_device()
-    BATCH_SIZE = 32
+    BATCH_SIZE = 16
     epochs = 30
     learningRate = 3e-4
     modelIdx = 4
     optimIdx = 0
-    weight_decay = 0
+    weight_decay = 1e-4
 
     # TRAIN_DIR = '/content/drive/MyDrive/KK/TRAIN'
     # TEST_DIR = '/content/drive/MyDrive/KK/TEST'
@@ -54,9 +54,6 @@ def main():
         model_out_path += "dpn131/dpn131"
         model = dpns.dpn131(pretrained=True)
     elif modelIdx == 5:
-        model_out_path += "senet101/senet101"
-        model = se_renet.se_resnext101()
-    elif modelIdx == 6:
         model_out_path += "inceptionv4/inceptionv4"
         model = inceptionv4.inceptionv4()
 
