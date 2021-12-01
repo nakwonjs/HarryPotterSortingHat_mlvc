@@ -15,7 +15,6 @@ import time
 import argparse
 
 from util import *
-from models import se_renet
 from models import dpns
 from models import Densenet
 from models import inceptionv4
