@@ -1,10 +1,15 @@
 # Harry Potter's The Sorting Hat
  Kyunghee University Practical Machine Learning Project  
- 
+ <img src="./imgs/img0.png" width="80%" height="80%"/>
 ## Authors
  * Won Jong-seo [@Wawtuh](https://github.com/Wawtuh)
  * Cho Moon-gi [@siryuon](https://github.com/siryuon)
- 
+
+## Results
+ <img src="./imgs/img1_1.gif" width="30%" height="30%"/> <img src="./imgs/img1_2.gif" width="30%" height="30%"/>
+ <img src="./imgs/img2_1.gif" width="30%" height="30%"/> <img src="./imgs/img2_2.gif" width="30%" height="30%"/>
+ <img src="./imgs/img2_3.gif" width="30%" height="30%"/> <img src="./imgs/img2_4.gif" width="30%" height="30%"/>
+
 ## Requirment
  * transformers
  * torch
