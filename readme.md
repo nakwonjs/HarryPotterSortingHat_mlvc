@@ -2,8 +2,8 @@
  Kyunghee University Practical Machine Learning Project  
  <img src="./imgs/img0.png" width="80%" height="80%"/>
 ## Authors
- * Won Jong-seo [@Wawtuh](https://github.com/Wawtuh)
- * Cho Moon-gi [@siryuon](https://github.com/siryuon)
+ * [@nakwonjs](https://github.com/nakwonjs)
+ * [@lnyxzdevk](https://github.com/lnyxzdevk)
 
 ## Results
  <img src="./imgs/img1_1.gif" width="30%" height="30%"/> <img src="./imgs/img1_2.gif" width="30%" height="30%"/>
